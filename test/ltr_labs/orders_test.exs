@@ -261,14 +261,16 @@ defmodule LtrLabs.OrdersTest do
       assert Enum.any?(order.order_items, fn item ->
                item.net_price == item.net_total and
                  item.net_price == 42 and
-                 item.total == 63
+                 item.total == 63 and
+                 item.id == 1
              end)
 
       assert Enum.any?(order.order_items, fn item ->
                item.net_price == 24 and
                  item.net_total == 48 and
                  item.total == 72 and
-                 item.quantity == 2
+                 item.quantity == 2 and
+                 item.id == 2
              end)
     end
   end

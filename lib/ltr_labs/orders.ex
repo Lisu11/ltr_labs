@@ -191,7 +191,6 @@ defmodule LtrLabs.Orders do
   @spec fill_order_missing_values(%Order{}) ::
           {:error, Ecto.Changeset.t()} | {:ok, %Order{}}
   def fill_order_missing_values(%Order{} = order) do
-    # this solution changes order_item ids
     Multi.new()
     |> Multi.run(:order, fn repo, _ ->
       order
@@ -229,7 +228,7 @@ defmodule LtrLabs.Orders do
     item_total = div(item_net_total * (100 + tax), 100)
 
     item
-    |> Map.take([:net_price, :quantity, :order_id, :inserted_at])
+    |> Map.take([:id, :net_price, :quantity, :order_id, :inserted_at])
     |> Map.merge(%{
       total: item_total,
       net_total: item_net_total
