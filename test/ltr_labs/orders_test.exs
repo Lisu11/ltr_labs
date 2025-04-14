@@ -273,5 +273,30 @@ defmodule LtrLabs.OrdersTest do
                  item.id == 2
              end)
     end
+
+    test "order items updated after fetch should not cause any problems", %{order: order} do
+      order_before_update =
+        Orders.get_order!(order.id) |> LtrLabs.Repo.preload([:order_items], force: true)
+
+      assert Enum.count(order_before_update.order_items) == 2
+      assert is_nil(order_before_update.total)
+
+      {:ok, _new_item_added_by_separate_process} =
+        Orders.create_order_item(%{order_id: order.id, quantity: 1, net_price: 1})
+
+      order_after_insert =
+        Orders.get_order!(order.id) |> LtrLabs.Repo.preload([:order_items], force: true)
+
+      assert Enum.count(order_after_insert.order_items) == 3
+      assert is_nil(order_after_insert.total)
+
+      {:ok, order_after_update} = Orders.fill_order_missing_values(order_before_update)
+
+      # fill_order_missing_values takes into consideration
+      # third order_item that is not present in `order_before_update`
+      assert Enum.count(order_after_update.order_items) == 3
+      assert order_after_update.total == 136
+      assert order_after_update.net_total == 91
+    end
   end
 end
